@@ -2,7 +2,7 @@
 <widget id="A6040824436558" security="true" version="1.1.0">
 <name>商家端</name>
 <description>商家端</description>
-       <author email="" href="http://www.we7x.cc">小哥疯跑跑腿</author>
+       <author email="" href="http://www.we7x.cc">饱嗝外卖</author>
        <content src="index.html"/>
        <preference name="windowBackground" value=""/>
        <preference name="autoLaunch" value="true"/>
