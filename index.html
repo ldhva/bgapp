@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>登录</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<link rel="stylesheet" href="./script/light7/light7.min.css" />
+	<link rel="stylesheet" href="./script/light7/index.css" />
+	<script type='text/javascript' src="./script/jquery-2.2.1.min.js"></script>
+	<script type='text/javascript' src='./script/light7/light7.min.js' charset='utf-8'></script>
+</head>
+<body>
+<style>
+	.hide{display: none}
+	.check-serial .content{background-color: #fff;}
+	.check-serial .header{position: relative;height: 8rem;overflow: hidden;}
+	.check-serial .header:after{width: 140%;height: 8rem;position: absolute;left: -20%;top:0;content: '';border-radius: 0 0 50% 50%;background:#33aafc;}
+	.check-serial .header .logo{position: relative; height: 4.4rem; width: 4.4rem; border-radius: 0.8rem; margin: 0 auto; top: 1rem;z-index: 2;}
+	.check-serial .header .logo img{height: 4.4rem; width: 4.4rem; border-radius: 0.8rem; display: block;}
+	.check-serial .header .header-title{position: relative;bottom: -1.5rem;width: 100%;font-size: 18px;font-weight: bold;text-align:center;color: #fff;z-index: 5;}
+	.check-serial .input-container{padding: 0 0.5rem; margin: 1.5rem 0;}
+	.check-serial .input-container .input-inner{margin-bottom: .5rem; padding: 0.5rem 0;border: 1px solid #eee;border-radius: 5px;}
+	.check-serial .input-container .input-mobile{width: 100%; border: none; text-align: center;}
+	.check-serial .input-container .input-pass{width: 100%; border: none; text-align: center;}
+	.check-serial .input-container .input-serial{width: 100%; border: none; text-align: center;}
+	.check-serial .button-success{background-color: #33aafc;}
+	.check-serial .button-success.button-fill{background-color: #33aafc;}
+</style>
+<div class="page check-serial">
+	<div class="content hide">
+		<div class="header">
+			<div class="logo">
+				<img src="./icon/logo.png" alt=""/>
+			</div>
+			<div class=header-title>京南商家</div>
+		</div>
+		<div class="input-container">
+				<div class="input-inner">
+				<input class="input-mobile" type="text" name="mobile" value="" placeholder="请输入店员账号">
+			</div>
+			<div class="input-inner">
+				<input class="input-pass" type="password" name="password" value="" placeholder="请输入店员密码">
+			</div>
+		</div>
+		<div class="content-padded">
+			<a href="javascript:;" class="button button-big button-fill button-success" id="btn-serial">登录</a>
+		</div>
+	</div>
+</div>
+</body>
+<script type="text/javascript">
+	function isIos() {
+		var userAgent = navigator.userAgent;
+		if(userAgent.indexOf('iPhone') > -1 || userAgent.indexOf('iPad') > -1 || userAgent.indexOf('Mac') > -1){
+			return true;
+		}
+		return false;
+	}
+
+	window.apiready = function(){
+		if(api.connectionType == 'none') {
+			api.openFrame({
+				name: 'frm_connection',
+				url: './html/connect.html',
+				bounces: true,
+				rect: {
+					x: 0,
+					y: 0,
+					w: 'auto',
+					h: 'auto'
+				}
+			});
+			return false;
+		}
+
+		var url_cn = api.getPrefs({
+			sync: true,
+			key: 'url_cn'
+		});
+		if(url_cn) {
+			window.location.href = url_cn;
+			return;
+		}
+		$('.check-serial .content').removeClass('hide');
+
+		$('#btn-serial').click(function(){
+			var mobile = $.trim($('.input-mobile').val());
+			if(!mobile) {
+				$.toast('请输入店员账号');
+				return false;
+			}
+			var password = $.trim($('.input-pass').val());
+			if(!password) {
+				$.toast('请输入店员密码');
+				return false;
+			}
+			$.showIndicator();
+			var client = 'android';
+			if(isIos()) {
+				client = 'ios';
+			}
+				var ret={"message":{"resultCode":0,"resultMessage":"","data":{"uniacid":2,"serial_sn":"A6040824436558","url_cn":"http://api.9p10.cn/addons/we7_wmall/template/manager/index.html?menu=#/pages/order/index?i=2","url":"http://api.9p10.cn","api_login_url":"http://api.9p10.cn/app/wxapp.php?i=2&m=we7_wmall&c=entry&do=mobile&ctrl=manage&ac=auth&op=login&from=vue"}},"redirect":"","type":"ajax"};
+				if(true) {
+					var result = ret.message;
+					if(result.resultCode != 0) {
+						$.hideIndicator();
+						$.toast(result.resultMessage);
+						return false;
+					} else {
+						var authInfo = result;
+						api.ajax({
+							url: authInfo.data.api_login_url,
+							method: 'post',
+							timeout: 300,
+							data: {
+								values: {
+									mobile: mobile,
+									password: password
+								}
+							}
+						}, function(ret) {
+							if(ret) {
+								var url_cn = authInfo.data.url_cn;
+								api.setPrefs({
+									key: 'url',
+									value: authInfo.data.url
+								});
+								api.setPrefs({
+									key: 'url_cn',
+									value: authInfo.data.url_cn
+								});
+								api.setPrefs({
+									key: 'uniacid',
+									value: authInfo.data.uniacid
+								});
+								api.setPrefs({
+									key: 'serial_sn',
+									value: authInfo.data.serial_sn
+								});
+								var phonic = {
+									voice: 1,
+									vibrate: 1,
+									voice_type: 2,
+									new: {
+										times: 'three'
+									},
+									remind: {
+										times: 'three'
+									},
+									refund: {
+										times: 'three'
+									}
+								};
+								api.setPrefs({
+									key: 'phonic',
+									value: phonic
+								});
+								var result = ret.message;
+								if(!result.errno) {
+									var res = result.message;
+									api.setPrefs({
+										key: 'clerkInfo',
+										value: {token: res.clerk.token, sid: res.sids[0]}
+									});
+									api.setPrefs({
+										key: 'sid',
+										value: res.sids[0]
+									});
+								} else {
+									$.toast(result.message);
+								}
+								window.location.href = url_cn;
+								return;
+							}
+						});
+						return;
+					}
+				}
+			});
+	//	});
+		$.init();
+	};
+</script>
+</html>
